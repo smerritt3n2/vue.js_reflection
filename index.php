@@ -16,7 +16,7 @@
                   <button @click="addInput">Add Data to List</button>
                 </p>
 
-                <div v-for="(input,n) in input">
+                <div v-for="(input,n) in input" id="list">
                   <p>
                   <span class="input">{{input}}</span> 
                     <button @click="removeInput(n)">Remove</button>  <!-- Removes Selected Data -->
@@ -49,7 +49,15 @@
 
         <!--========================================================================================================================================================-->
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="js/external/FileSaver.js"></script>
         <script>
+        window.onbeforeunload = function(event) {
+            var userInput = JSON.stringify(this.input);
+            var fileTitle = "Here is what's recently been added to the List: ";
+            var blob = new Blob([fileTitle, userInput], { type: "text/plain;charset=utf-8" });
+            saveAs(blob, "ActivityLog.txt");
+            return 'hello';
+        }
             const app = new Vue({
                 el:'#app',
                 data: {
@@ -59,7 +67,6 @@
                     displayE:true,
                 },
                 mounted() {
-                    
                     if(localStorage.getItem('input')) {
                     try {
                         this.input = JSON.parse(localStorage.getItem('input'));
@@ -69,26 +76,27 @@
                     }
                 },
                 methods: {
-                    addInput() {
-                    if(!this.newInput) return; // Checks that user has put data into text-field
+                    addInput() { /* Gathers data input, then adds it to local storage */
+                    if(!this.newInput) return; /* Checks that user has input data, if not do nothing */
                     this.input.push(this.newInput);
                     this.newInput = '';
                     this.saveInput();
                     },
-                    removeInput(x) {
+                    removeInput(x) { /* Removes the data in local storage */
                     this.input.splice(x,1);
                     this.saveInput();
                     },
-                    saveInput() {
+                    saveInput() { /* Saves data gathered, then puts into local storage */
                     let parsed = JSON.stringify(this.input);
                     localStorage.setItem('input', parsed);
                     },
-                    updateInput(x) {
+                    updateInput(x) { /* Updates the data in local storage */
                     this.input.fill(this.update);
                     this.saveInput();
                     location.reload();
-                    },
+                    },                    
                 }
+                
                 })
         </script>
         <!--========================================================================================================================================================-->
